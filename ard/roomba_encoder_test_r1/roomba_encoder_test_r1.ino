@@ -1,10 +1,15 @@
 
+// changes for r1: adding abillity to use potentiometer for input. this
+// will help with control system modeling later.
+
 #define motorPinA 7
 #define motorPinB 8
 #define motorSpeedPin 6
+#define commandPin A0
 
 void setup() {
   // serial setup
+  // 9600 is so last year
   Serial.begin(115200);
   
 
@@ -16,13 +21,18 @@ void setup() {
 }
 
 void loop() {
-  // manually enter the speed here. value between -255 and 255
+
   // NOTE: minium useful speed is about 90. anything less than that
   // and nothing will really happen. (roomba motor). i.e the deadband
   // of the motors is +/-90.
-  int test = 0;
-  runMotor(test);
-  delay(500);
+
+  // get input value from pot and map it to something useful
+  
+  int commandValue = analogRead(commandPin);
+  // Serial.print(commandValue);
+  commandValue = map(commandValue, 0, 1023, -255, 255);
+  runMotor(commandValue);
+  delay(10);
 
 }
 
@@ -33,7 +43,7 @@ void runMotor(int cmd)
   // get speed
   int motorSpeed = abs(cmd);
   analogWrite(motorSpeedPin, motorSpeed);
-  Serial.print("Motor Speed Command: ");
+  Serial.print(" Motor Speed Command: ");
   Serial.print(motorSpeed);
 
   if (cmd > 0 && cmd <= 255) {

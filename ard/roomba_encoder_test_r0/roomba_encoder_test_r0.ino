@@ -4,20 +4,23 @@
 #define motorSpeedPin 6
 
 void setup() {
-  // put your setup code here, to run once:
+  // serial setup
   Serial.begin(115200);
+  
 
   pinMode(motorPinA, OUTPUT);
   pinMode(motorPinB, OUTPUT);
   pinMode(motorSpeedPin, OUTPUT);
-
   Serial.println("Starting...");
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  int test = 300;
+  // manually enter the speed here. value between -255 and 255
+  // NOTE: minium useful speed is about 90. anything less than that
+  // and nothing will really happen. (roomba motor). i.e the deadband
+  // of the motors is +/-90.
+  int test = 0;
   runMotor(test);
   delay(500);
 
@@ -29,6 +32,7 @@ void runMotor(int cmd)
 
   // get speed
   int motorSpeed = abs(cmd);
+  analogWrite(motorSpeedPin, motorSpeed);
   Serial.print("Motor Speed Command: ");
   Serial.print(motorSpeed);
 
