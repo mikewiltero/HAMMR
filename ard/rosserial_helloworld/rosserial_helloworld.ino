@@ -2,29 +2,35 @@
  * rosserial Publisher Example
  * Prints "hello world!"
  * 
- * trying to get this stupid thing to work but its not working
+ * its working now. It always was. i'm just stupid and didn't use rostopic echo chatter :|
  */
 
 #include <ros.h>
-#include <std_msgs/String.h>
+//#include <std_msgs/String.h>
+//#include <std_msgs/Float32.h>
+#include <std_msgs/UInt32.h>
 
 ros::NodeHandle nh;
 
-std_msgs::String str_msg;
-ros::Publisher chatter("chatter", &str_msg);
+std_msgs::UInt32 potval_msg;
 
-char hello[13] = "hello world!";
+// this instantiates the publisher with a topic "chatter" and a reference
+// to the information to publish
+ros::Publisher potval("potval", &potval_msg);
+
+int potvalRead = 0;
 
 void setup()
 {
   nh.initNode();
-  nh.advertise(chatter);
+  nh.advertise(potval);
 }
 
 void loop()
 {
-  str_msg.data = hello;
-  chatter.publish( &str_msg );
+  potvalRead = analogRead(A0);
+  potval_msg.data = potvalRead;
+  potval.publish( &potval_msg );
   nh.spinOnce();
   delay(1000);
 }
