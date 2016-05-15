@@ -32,5 +32,5 @@ void loop()
   potval_msg.data = potvalRead;
   potval.publish( &potval_msg );
   nh.spinOnce();
-  delay(1000);
+  //delay(1000);
 }
