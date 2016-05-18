@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 import rospy
 import sys
+import maestro
 from std_msgs.msg import UInt32
+
+
+#servo = maestro.Controller()
+#servo.setAccel(0,4)
 
 def callback(data):
     # don't need loginfo for now
