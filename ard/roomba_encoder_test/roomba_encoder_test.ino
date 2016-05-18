@@ -22,11 +22,11 @@
 
 #define motorPinA 7
 #define motorPinB 8
-#define motorSpeedPin 6
-#define commandPin A0
+#define motorSpeedPin 6 // this is PWM to the H-bridge
+#define commandPin A0 // potentiometer
 
 // define encoder inputs
-#define encoderPin 2
+#define encoderPin 2 // this is an interrupt pin
 volatile unsigned int encoderPos = 0;
 
 // the frequency at which the speed will be calculated. 1000 = every second
@@ -34,7 +34,7 @@ const int calcFreq = 200;
 const int ppr = 942; // the points per wheel revolution, found experimentially
 float RPM = 0;
 unsigned long previousMillis = 0;
-float encoderDelta = 0;
+float encoderDelta = 0; // used to track difference in encoder readings
 long lastEncoderPos = 0;
 float encoderRawSpeed = 0;
 
@@ -47,7 +47,7 @@ void setup() {
   // encoder setups
   pinMode(encoderPin, INPUT);
 
-  attachInterrupt(0, doEncoder, RISING);
+  attachInterrupt(0, doEncoder, RISING); // attach the encoder to interrupt and trigger when rising.
 
   // motor setups
   pinMode(motorPinA, OUTPUT);
@@ -73,11 +73,11 @@ void loop() {
 
   unsigned long currentMillis = millis();
 
-  // calculate the speed on a specified frequency
+  // calculate the speed on a specified frequency, but only at a specified frequency.
   if (currentMillis - previousMillis >= calcFreq) {
     previousMillis = currentMillis;
 
-    //dothings
+    // find the difference in encoder ticks between last read and now
     encoderDelta = encoderPos - lastEncoderPos;
     lastEncoderPos = encoderPos;
 
@@ -102,8 +102,10 @@ void loop() {
 
 }
 
+// interrupt service routine
 void doEncoder() {
 
+  // add a count every time an encoder tick triggers the ISR
   encoderPos++;
   //Serial.println("TRIGGERED");
 
