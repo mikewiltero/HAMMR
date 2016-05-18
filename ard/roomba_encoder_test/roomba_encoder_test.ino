@@ -31,7 +31,7 @@ volatile unsigned int encoderPos = 0;
 
 // the frequency at which the speed will be calculated. 1000 = every second
 const int calcFreq = 200;
-const int ppr = 942; // the points per wheel revolution, found experimentially
+const int ppr = 830; // the points per wheel revolution, found experimentially
 float RPM = 0;
 unsigned long previousMillis = 0;
 float encoderDelta = 0; // used to track difference in encoder readings
