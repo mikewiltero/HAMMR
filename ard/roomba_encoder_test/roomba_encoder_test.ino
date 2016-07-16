@@ -11,23 +11,32 @@
 // not sure if this works but lets keep it here for later
 // reference: https://gist.github.com/jrmedd/5516863
 //#if defined(ARDUINO) && ARDUINO >= 100
-  //#include "Arduino.h"
-  //#else
-  //#include "WProgram.h"
-  //#endif
+//#include "Arduino.h"
+//#else
+//#include "WProgram.h"
+//#endif
 
 
 //#include <digitalWriteFast.h> // Dr. Hessmer's digitalwritefast library
-                              // http://code.google.com/p/digitalwritefast/
+// http://code.google.com/p/digitalwritefast/
 
 #define motorPinA 7
 #define motorPinB 8
-#define motorSpeedPin 6
-#define commandPin A0
+#define motorSpeedPin 6 // this is PWM to the H-bridge
+#define commandPin A0 // potentiometer
 
 // define encoder inputs
-#define encoderPin 2
+#define encoderPin 2 // this is an interrupt pin
 volatile unsigned int encoderPos = 0;
+
+// the frequency at which the speed will be calculated. 1000 = every second
+const int calcFreq = 200;
+const int ppr = 830; // the points per wheel revolution, found experimentially
+float RPM = 0;
+unsigned long previousMillis = 0;
+float encoderDelta = 0; // used to track difference in encoder readings
+long lastEncoderPos = 0;
+float encoderRawSpeed = 0;
 
 
 void setup() {
@@ -38,14 +47,14 @@ void setup() {
   // encoder setups
   pinMode(encoderPin, INPUT);
 
-  attachInterrupt(0, doEncoder, RISING);
-  
+  attachInterrupt(0, doEncoder, RISING); // attach the encoder to interrupt and trigger when rising.
+
   // motor setups
   pinMode(motorPinA, OUTPUT);
   pinMode(motorPinB, OUTPUT);
   pinMode(motorSpeedPin, OUTPUT);
   Serial.println("Starting...");
-  
+
 
 }
 
@@ -55,41 +64,51 @@ void loop() {
   // and nothing will really happen. (roomba motor). i.e the deadband
   // of the motors is +/-90.
 
-  // get input value from pot and map it to something useful
-  
-  //int commandValue = analogRead(commandPin);
+  // get the commanded speed from the pot
+  int commandValue = analogRead(commandPin);
   // Serial.print(commandValue);
-  //commandValue = map(commandValue, 0, 1023, -255, 255);
-  int commandValue = 90;
+  commandValue = map(commandValue, 0, 1023, -255, 255);
 
-  // this was a good value (1630changes/rev) for the speed of about 120, but after speeding it up, its very wrong.
-  // running at 90, ~11.1RPM, and using RISING, there were 942p/rot
-  int destinationPos = 942;
+  runMotor(commandValue);
 
-  while (destinationPos >= encoderPos) {
-    runMotor(commandValue);
-    
+  unsigned long currentMillis = millis();
+
+  // calculate the speed on a specified frequency, but only at a specified frequency.
+  if (currentMillis - previousMillis >= calcFreq) {
+    previousMillis = currentMillis;
+
+    // find the difference in encoder ticks between last read and now
+    encoderDelta = encoderPos - lastEncoderPos;
+    lastEncoderPos = encoderPos;
+
+    // this is the rotational speed of the ENCODER wheel
+    encoderRawSpeed = ((encoderDelta / calcFreq)*1000); // points per second (p/s)
+
+    RPM = ((encoderRawSpeed / ppr) * 60); // divide by the ppr conversion and seconds to get RPM
+
+    Serial.print("\nCommand: ");
+    Serial.print(commandValue);
+    Serial.print("\tEncoder Pos: ");
+    Serial.print(encoderPos);
+    Serial.print("\tWheel Speed: ");
+    Serial.println(RPM);
+    Serial.print("Last Enc: ");
+    Serial.print(lastEncoderPos);
+    Serial.print("\tDelta: ");
+    Serial.print(encoderDelta);
+    Serial.print("\tRawSpd: ");
+    Serial.println(encoderRawSpeed);
   }
-
-  
-  runMotor(0);
-  while(true);
-  //runMotor(commandValue);
-
-
-  
-
-
-
 
 }
 
+// interrupt service routine
 void doEncoder() {
 
+  // add a count every time an encoder tick triggers the ISR
   encoderPos++;
-  Serial.println(encoderPos);
-  //Serial.println(encoderPos, DEC);
-  
+  //Serial.println("TRIGGERED");
+
 }
 
 void runMotor(int cmd)
@@ -111,21 +130,21 @@ void runMotor(int cmd)
   else if (cmd < 0 && cmd >= -255) {
     digitalWrite(motorPinA, LOW);
     digitalWrite(motorPinB, HIGH);
-    Serial.println(" Rotating CCW");
+    //Serial.println(" Rotating CCW");
   }
 
   else if (cmd == 0) {
     digitalWrite(motorPinA, LOW);
     digitalWrite(motorPinB, LOW);
-    Serial.println(" stopped, idle");
+    //Serial.println(" stopped, idle");
   }
 
   else {
     digitalWrite(motorPinA, LOW);
     digitalWrite(motorPinB, LOW);
-    Serial.println(" Motor command error; outside of range.");
+    //Serial.println(" Motor command error; outside of range.");
   }
-  
-  
+
+
 }
 
