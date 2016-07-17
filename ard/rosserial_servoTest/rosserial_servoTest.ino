@@ -16,30 +16,31 @@
 #include <Arduino.h>
 #include <Servo.h> 
 #include <ros.h>
-#include <std_msgs/UInt16.h>
+#include <geometry_msgs/Twist.h>
+//#include <std_msgs/UInt16.h>
 
 ros::NodeHandle  nh;
 
 Servo servo;
 
-//std_msgs::UInt16 fooBack_msg;
-
-
-void servo_cb( const std_msgs::UInt16& cmd_msg){
+//void servo_cb( const std_msgs::UInt16& cmd_msg){
+void servo_cb( const geometry_msgs::Twist& cmd_msg){
   
-  servo.write(cmd_msg.data); //set servo angle, should be from 0-180  
+  
+  float linearXf = map(cmd_msg.angular.x, -1, 1, 0, 180);
+  int linearXi = (int) linearXf;
+  servo.write(linearXi); //set servo angle, should be from 0-180  
   digitalWrite(13, HIGH-digitalRead(13));  //toggle led  
 }
 
 
-ros::Subscriber<std_msgs::UInt16> sub("servo", servo_cb);
-//ros::Publisher foofoo("foofoo", &fooBack_msg);
+//ros::Subscriber<std_msgs::UInt16> sub("servo", servo_cb);
+ros::Subscriber<geometry_msgs::Twist> sub("servo", servo_cb);
 
 void setup(){
   pinMode(13, OUTPUT);
 
   nh.initNode();
-  //nh.advertise(foofoo);
   nh.subscribe(sub);
   
   servo.attach(9); //attach it to pin 9
@@ -47,6 +48,5 @@ void setup(){
 
 void loop(){
   nh.spinOnce();
-  //foofoo.publish( & fooBack_msg );
   delay(1);
 }
