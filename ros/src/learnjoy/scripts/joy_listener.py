@@ -11,7 +11,7 @@ def callback(msg):
    # rospy.loginfo("Linear Components: [%f, %f, %f]"%(msg.linear.x, msg.#linear.y, msg.linear.z))
    # rospy.loginfo("Angular Components: [%f, %f, %f]"%(msg.angular.x, ##msg.angular.y, msg.angular.z))
 	
-	sys.stdout.write("Linear Vector: [%f, %f, %f] \n" %(msg.linear.x, msg.linear.y, msg.linear.z))
+	sys.stdout.write("Linear Vector: [%f] \n" %msg.linear.x)
 
     # Do velocity processing here:
     # Use the kinematics of your robot to map linear and angular velocities into motor commands
