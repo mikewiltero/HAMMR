@@ -22,7 +22,7 @@ ros::NodeHandle  nh;
 
 Servo servo;
 
-std_msgs::UInt16 fooBack_msg;
+//std_msgs::UInt16 fooBack_msg;
 
 
 void servo_cb( const std_msgs::UInt16& cmd_msg){
@@ -33,13 +33,13 @@ void servo_cb( const std_msgs::UInt16& cmd_msg){
 
 
 ros::Subscriber<std_msgs::UInt16> sub("servo", servo_cb);
-ros::Publisher foofoo("foofoo", &fooBack_msg);
+//ros::Publisher foofoo("foofoo", &fooBack_msg);
 
 void setup(){
   pinMode(13, OUTPUT);
 
   nh.initNode();
-  nh.advertise(foofoo);
+  //nh.advertise(foofoo);
   nh.subscribe(sub);
   
   servo.attach(9); //attach it to pin 9
@@ -47,6 +47,6 @@ void setup(){
 
 void loop(){
   nh.spinOnce();
-  foofoo.publish( & fooBack_msg );
+  //foofoo.publish( & fooBack_msg );
   delay(1);
 }
