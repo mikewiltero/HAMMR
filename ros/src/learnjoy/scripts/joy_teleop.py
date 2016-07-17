@@ -3,20 +3,20 @@ import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Joy
 import sys
-from std_msgs.msg import UInt16
+#from std_msgs.msg import UInt16
 import time
  
 def callback(data):
 	twist = Twist()
 	
-	# using the Twist type to get info from the joystick. the constant is a speed multiplier
-	twist.angular.x = data.axes[3] # move forward and backward
+	# using the Twist type to get info from the joystick.
+	twist.angular.x = data.axes[3] 
 	#sys.stdout.write("%f" %twist.angular.x)
 	# twist.angular.x is the thing that has the data for the x axis
 	
 	# translate the raw joy value to a value friendly to the arduino servo function (value between 0-180
-	farts = translate(twist.angular.x, -1, 1, 0, 160)
-	pub.publish(farts)
+	#farts = translate(twist.angular.x, -1, 1, 0, 180)
+	pub.publish(twist)
 
 	
  
@@ -24,7 +24,7 @@ def joy_teleop():
 	rospy.init_node('Joy_teleop')
 	rospy.Subscriber("joy", Joy, callback)
 	global pub
-	pub = rospy.Publisher('servo', UInt16, queue_size=10)
+	pub = rospy.Publisher('servo', Twist, queue_size=10)
  
 	r = rospy.Rate(10) # 10hz
 	while not rospy.is_shutdown():
