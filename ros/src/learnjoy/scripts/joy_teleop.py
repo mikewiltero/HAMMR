@@ -10,12 +10,12 @@ def callback(data):
 	twist = Twist()
 	
 	# using the Twist type to get info from the joystick. the constant is a speed multiplier
-	twist.angular.x = 160*data.axes[3] # move forward and backward
+	twist.angular.x = data.axes[3] # move forward and backward
 	#sys.stdout.write("%f" %twist.angular.x)
 	# twist.angular.x is the thing that has the data for the x axis
 	
 	# translate the raw joy value to a value friendly to the arduino servo function (value between 0-180
-	farts = translate(twist.angular.x, -160, 160, 0, 160)
+	farts = translate(twist.angular.x, -1, 1, 0, 160)
 	pub.publish(farts)
 
 	
