@@ -8,6 +8,8 @@ from geometry_msgs.msg import Twist
 import sys
 import maestro
 
+# This is an attempt to teleop using the pololo maestro servo controller, which I can't get to work. I am falling back to using an ardino for now.
+
 
 #SURGE_LEFT = 1
 #SURGE_RIGHT = 0

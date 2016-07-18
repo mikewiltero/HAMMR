@@ -3,54 +3,41 @@ import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Joy
 import sys
-#from std_msgs.msg import UInt16
 import time
+
+# this scales the joy input to a larger number.
+# for the case of arduino servo.h, set to 180 so it can be mapped to
+# the expected servo input of 0-180 (angle)
+# there is probably a better way to do this.
+joyToServoScale = 180
  
+# define the callback function to be called when something comes in from the subscription
 def callback(data):
 	twist = Twist()
 	
 	# using the Twist type to get info from the joystick.
-	twist.angular.x = data.axes[3] 
-	#sys.stdout.write("%f" %twist.angular.x)
-	# twist.angular.x is the thing that has the data for the x axis
-	
-	# translate the raw joy value to a value friendly to the arduino servo function (value between 0-180
-	#farts = translate(twist.angular.x, -1, 1, 0, 180)
+	twist.angular.x = joyToServoScale*data.axes[3] 
 	pub.publish(twist)
-
 	
  
 def joy_teleop():
+	# Initialize a ROS node
 	rospy.init_node('Joy_teleop')
+	
+	# set up a subscriber of the topic "joy", type "Joy" and assign the callback function "callback"
 	rospy.Subscriber("joy", Joy, callback)
-	global pub
+	
+	global pub # why "global pub"?
+	
+	# set up a publisher of topic "servo", type "Twist" and set a queue size
 	pub = rospy.Publisher('servo', Twist, queue_size=10)
  
+	# I don't remember what this is
 	r = rospy.Rate(10) # 10hz
 	while not rospy.is_shutdown():
 		r.sleep()
- 
 	# spin() simply keeps python from exiting until this node is stopped
 	rospy.spin()
-	
-# this function is similar to arduino's Map function.
-# "value" is the value needing to be translated
-# leftMin is the lower end of the incoming value
-# leftMax is the upper end of the incoming value
-# rightMin is the lower end of the translated value
-# rightMax is the upper end of the translated value
-# 
-# Source: http://stackoverflow.com/questions/1969240/mapping-a-range-of-values-to-another
-def translate(value, leftMin, leftMax, rightMin, rightMax):
-	#figure out how 'wide' each range is
-	leftSpan = leftMax - leftMin
-	rightSpan = rightMax - rightMin
-	
-	#convert the left range into 0-1 range (float)
-	valueScaled = float(value - leftMin) / float(leftSpan)
-	
-	#convert the 0-1 range into a value in the right range.
-	return rightMin + (valueScaled * rightSpan)
  
 if __name__ == '__main__':
 	joy_teleop()
