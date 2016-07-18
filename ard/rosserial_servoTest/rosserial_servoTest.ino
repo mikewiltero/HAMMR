@@ -27,9 +27,9 @@ Servo servo;
 void servo_cb( const geometry_msgs::Twist& cmd_msg){
   
   
-  float linearXf = map(cmd_msg.angular.x, -1, 1, 0, 180);
-  int linearXi = (int) linearXf;
-  servo.write(linearXi); //set servo angle, should be from 0-180  
+  int linearX = map(cmd_msg.angular.x, -180, 180, 1100, 1900);
+  
+  servo.writeMicroseconds(linearX); //set servo angle, should be from 0-180  
   digitalWrite(13, HIGH-digitalRead(13));  //toggle led  
 }
 
