@@ -16,7 +16,7 @@ def callback(data):
 	twist = Twist()
 	
 	# using the Twist type to get info from the joystick.
-	twist.angular.x = joyToServoScale*data.axes[3] 
+	twist.linear.x = joyToServoScale*data.axes[3] 
 	pub.publish(twist)
 	
  
